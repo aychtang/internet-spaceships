@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="$1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>spaceships.</title>
+        <style type="text/css">
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            body, html {
+                width: 100%;
+                height: 100%;
+            }
+            body {
+                background-color: #fff70f;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas class="map"></canvas>
+    </body>
+    <script type="text/javascript">
+        var canvas = document.getElementsByClassName('map')[0];
+        var context = canvas.getContext('2d');
+        var spaceshipImage = new Image();
+        var accel;
+        var ldown;
+        var rdown;
+        spaceshipImage.src = 'spaceship.png';
+        canvas.height = document.height;
+        canvas.width = document.width;
+
+        var degreesToRad = function(degs) {
+            return degs * Math.PI/180;
+        };
+
+        var ship = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: 0,
+            vy: 0,
+            thrust: 0,
+            maxThrust: 2.5,
+            turnrate: 20,
+            rotation: 0,
+            update: function() {
+                ship.vx *= 0.98;
+                ship.vy *= 0.98;
+                if (ldown) ship.left();
+                if (rdown) ship.right();
+                if (accel === true) ship.accelerate();
+                ship.x += ship.vx;
+                ship.y -= ship.vy;
+            },
+            accelerate: function() {
+                this.thrust += this.thrust + 0.2;
+                if (this.thrust > this.maxThrust) {
+                    this.thrust = this.maxThrust;
+                }
+                ship.vx += Math.sin(degreesToRad(ship.rotation)) * ship.thrust;
+                ship.vy += Math.cos(degreesToRad(ship.rotation)) * ship.thrust;
+            },
+            left: function() {
+                ship.rotation -= ship.turnrate;
+            },
+            right: function() {
+                ship.rotation += ship.turnrate;
+            }
+        };
+
+        var render = function() {
+            context.save();
+            context.translate(ship.x, ship.y);
+            context.translate(25, 25);
+            context.rotate(degreesToRad(ship.rotation));
+            context.drawImage(spaceshipImage, -25, -25);
+            context.restore();
+        };
+
+        var loop = function() {
+            ship.update();
+            render();
+        };
+
+        spaceshipImage.onload = function() {
+            setInterval(function() {
+                loop();
+            }, 60);
+        };
+
+        window.addEventListener('keydown', function(e) {
+            if (e.keyCode === 39) rdown = true;
+            if (e.keyCode === 37) ldown = true;
+            if (e.keyCode === 38) accel = true;
+        });
+
+        window.addEventListener('keyup', function(e) {
+            if (e.keyCode === 39) rdown = false;
+            if (e.keyCode === 37) ldown = false;
+            if (e.keyCode === 38) accel = false;
+        });
+    </script>
+</html>

@@ -24,10 +24,8 @@ Ship.prototype.update = function(keyMap) {
 
     this.x += this.vx;
     this.y -= this.vy;
-    if (this.x < 0) this.vx = 2;
-    if (this.y <= 0) this.vy = - 2;
-    if (this.x > document.body.clientWidth) this.vx = - 2;
-    if (this.y > document.body.clientHeight) this.vy = 2;
+    if (this.x < 0 || this.x > document.body.clientWidth) this.vx = -this.vx;
+    if (this.y <= 0 || this.y > document.body.clientHeight) this.vy = -this.vy;
 };
 
 Ship.prototype.accelerate = function() {

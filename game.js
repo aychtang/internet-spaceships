@@ -3,10 +3,11 @@ var Game = function(canvas) {
     this.context = canvas.getContext('2d');
     this.gameWidth = 10000;
     this.gameHeight = 10000;
-    this.spaceshipImage = new Image();
-    this.spaceshipImage.src = 'grumpy.png';
-    this.bulletImage = new Image();
-    this.bulletImage.src = 'bullet.jpg';
+    this.spaceshipImage = this.setImage('grumpy.png', function() {
+        window.gameView.init();
+    });
+    this.spaceShipAccelImage = this.setImage('smileCat.png');
+    this.bulletImage = this.setImage('bullet.jpg');
     this.keyMap = {
         left: undefined,
         right: undefined,
@@ -18,9 +19,15 @@ var Game = function(canvas) {
     this.canvas.height = document.body.clientHeight;
     this.canvas.width = document.body.clientWidth;
     this.viewPort = new ViewPort(0, 0, undefined, this.canvas.height, this.canvas.width);
-    this.spaceshipImage.onload = function() {
-        gameView.init();
-    };
+};
+
+Game.prototype.setImage = function(src, cb) {
+    var image = new Image();
+    image.src = src;
+    if (cb) {
+        image.onload = cb;
+    }
+    return image;
 };
 
 Game.prototype.init = function() {
@@ -53,7 +60,7 @@ Game.prototype.loop = function() {
     }
     for (var i = 0; i < this.ships.length; i++) {
         this.ships[i].update(this.keyMap);
-        this.renderObj(this.ships[i], this.spaceshipImage);
+        this.renderObj(this.ships[i], this.keyMap.up ? this.spaceShipAccelImage : this.spaceshipImage);
     }
 };
 

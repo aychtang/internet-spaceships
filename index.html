@@ -23,142 +23,31 @@
     <body>
         <canvas class="map"></canvas>
     </body>
+    <script src="viewport.js"></script>
+    <script src="game.js"></script>
+    <script src="bullet.js"></script>
+    <script src="ship.js"></script>
+
     <script type="text/javascript">
         var canvas = document.getElementsByClassName('map')[0];
-        var context = canvas.getContext('2d');
-        var spaceshipImage = new Image();
-        var bulletImage = new Image();
-        var keyMap = {
-            left: undefined,
-            right: undefined,
-            up: undefined,
-            down: undefined
-        };
-        var bullets = [];
-        var ships = [];
-        spaceshipImage.src = 'spaceship.png';
-        bulletImage.src = 'bullet.jpg';
-        canvas.height = document.body.clientHeight;
-        canvas.width = document.body.clientWidth;
 
         var degreesToRad = function(degs) {
             return degs * Math.PI / 180;
         };
 
-        var Bullet = function(x, y, rotation) {
-            this.x = x;
-            this.y = y;
-            this.rotation = rotation;
-            this.vx = Math.sin(degreesToRad(this.rotation)) * 10;
-            this.vy = Math.cos(degreesToRad(this.rotation)) * 10;
-            this.size = 60;
-        };
-
-        Bullet.prototype.update = function() {
-            this.x += this.vx;
-            this.y -= this.vy;
-        };
-
-        var Ship = function(x, y, maxThrust, turnrate, size) {
-            this.x = x;
-            this.y = y;
-            this.vx = 0;
-            this.vy = 0;
-            this.thrust = 0;
-            this.maxThrust = maxThrust;
-            this.turnrate = turnrate;
-            this.rotation = 0;
-            this.size = size;
-        };
-
-        Ship.prototype.update = function(keyMap) {
-            if (keyMap.left) {
-                this.left();
-            }
-            if (keyMap.right) {
-                this.right();
-            }
-            if (keyMap.up) {
-                this.accelerate();
-            }
-            this.x += this.vx;
-            this.y -= this.vy;
-        };
-
-        Ship.prototype.accelerate = function() {
-            this.thrust += 0.1;
-            if (this.thrust >= this.maxThrust) {
-                this.thrust = this.maxThrust;
-            }
-            this.vx += Math.sin(degreesToRad(this.rotation)) * this.thrust;
-            this.vy += Math.cos(degreesToRad(this.rotation)) * this.thrust;
-        };
-
-        Ship.prototype.left = function() {
-            this.rotation -= this.turnrate;
-        };
-
-        Ship.prototype.right = function() {
-            this.rotation += this.turnrate;
-        };
-
-        Ship.prototype.fire = function() {
-            bullets.push(new Bullet(this.x + this.size / 4, this.y + this.size / 4, this.rotation));
-        };
-
-        ships.push(new Ship(canvas.width/3, canvas.height/3, 0.1, 5, 120));
-        ships.push(new Ship(canvas.width/2, canvas.height/2, 0.1, 5, 120));
-        ships.push(new Ship(canvas.width * 0.2, canvas.height/2, 0.1, 5, 120));
-
-        var clear = function() {
-            canvas.width = canvas.width;
-        };
-
-        var renderObj = function(obj, img) {
-            var halfSize = obj.size / 2;
-            context.save();
-            context.translate(obj.x, obj.y);
-            context.translate(halfSize, halfSize);
-            context.rotate(degreesToRad(obj.rotation));
-            context.drawImage(img, -halfSize, -halfSize);
-            context.restore();
-        };
-
-        var loop = function() {
-            clear();
-            for (var i = 0; i < bullets.length; i++) {
-                bullets[i].update();
-                renderObj(bullets[i], bulletImage);
-            }
-            for (var i = 0; i < ships.length; i++) {
-                ships[i].update(keyMap);
-                renderObj(ships[i], spaceshipImage);
-            }
-        };
-
-        spaceshipImage.onload = function() {
-            setInterval(function() {
-                loop();
-            }, 14);
-        };
-
-        var fire = function() {
-            for (var i = 0; i < ships.length; i++) {
-                ships[i].fire();
-            }
-        };
+        var gameView = new Game(canvas, new ViewPort(0,0));
 
         window.addEventListener('keydown', function(e) {
-            if (e.keyCode === 32) fire();
-            if (e.keyCode === 39) keyMap.right = true;
-            if (e.keyCode === 37) keyMap.left = true;
-            if (e.keyCode === 38) keyMap.up = true;
+            if (e.keyCode === 32) gameView.fire();
+            if (e.keyCode === 39) gameView.keyMap.right = true;
+            if (e.keyCode === 37) gameView.keyMap.left = true;
+            if (e.keyCode === 38) gameView.keyMap.up = true;
         });
 
         window.addEventListener('keyup', function(e) {
-            if (e.keyCode === 39) keyMap.right = false;
-            if (e.keyCode === 37) keyMap.left = false;
-            if (e.keyCode === 38) keyMap.up = false;
+            if (e.keyCode === 39) gameView.keyMap.right = false;
+            if (e.keyCode === 37) gameView.keyMap.left = false;
+            if (e.keyCode === 38) gameView.keyMap.up = false;
         });
     </script>
 </html>

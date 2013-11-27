@@ -35,6 +35,7 @@
             down: undefined
         };
         var bullets = [];
+        var ships = [];
         spaceshipImage.src = 'spaceship.png';
         bulletImage.src = 'bullet.jpg';
         canvas.height = document.body.clientHeight;
@@ -48,8 +49,8 @@
             this.x = x;
             this.y = y;
             this.rotation = rotation;
-            this.vx = Math.sin(degreesToRad(this.rotation)) * 5;
-            this.vy = Math.cos(degreesToRad(this.rotation)) * 5;
+            this.vx = Math.sin(degreesToRad(this.rotation)) * 10;
+            this.vy = Math.cos(degreesToRad(this.rotation)) * 10;
             this.size = 60;
         };
 
@@ -102,10 +103,12 @@
         };
 
         Ship.prototype.fire = function() {
-            bullets.push(new Bullet(this.x, this.y, this.rotation));
+            bullets.push(new Bullet(this.x + this.size / 4, this.y + this.size / 4, this.rotation));
         };
 
-        var ship = new Ship(canvas.width/2, canvas.height/2, 0.1, 5, 120);
+        ships.push(new Ship(canvas.width/3, canvas.height/3, 0.1, 5, 120));
+        ships.push(new Ship(canvas.width/2, canvas.height/2, 0.1, 5, 120));
+        ships.push(new Ship(canvas.width * 0.2, canvas.height/2, 0.1, 5, 120));
 
         var clear = function() {
             canvas.width = canvas.width;
@@ -123,14 +126,14 @@
 
         var loop = function() {
             clear();
-
             for (var i = 0; i < bullets.length; i++) {
                 bullets[i].update();
                 renderObj(bullets[i], bulletImage);
             }
-
-            ship.update(keyMap);
-            renderObj(ship, spaceshipImage);
+            for (var i = 0; i < ships.length; i++) {
+                ships[i].update(keyMap);
+                renderObj(ships[i], spaceshipImage);
+            }
         };
 
         spaceshipImage.onload = function() {
@@ -139,8 +142,14 @@
             }, 14);
         };
 
+        var fire = function() {
+            for (var i = 0; i < ships.length; i++) {
+                ships[i].fire();
+            }
+        };
+
         window.addEventListener('keydown', function(e) {
-            if (e.keyCode === 32) ship.fire();
+            if (e.keyCode === 32) fire();
             if (e.keyCode === 39) keyMap.right = true;
             if (e.keyCode === 37) keyMap.left = true;
             if (e.keyCode === 38) keyMap.up = true;
